@@ -784,20 +784,7 @@ useEffect(() => {
 
             <div className="flex-1 overflow-y-auto max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-20">
             {Array.from({ length: TOTAL_WORLDS }).map((_, i) => {
-              const world = i + 1;
-              const isWorldVisible = world <= 15 || hasRevealedExtraStages;
-              if (!isWorldVisible) return null;
 
-              const isChainLocked = (world > 5 && world <= 10 && !isStageCleared(5, 3)) ||
-                                    (world > 10 && world <= 15 && !isStageCleared(10, 3)) ||
-                                    (world > 15 && !isStageCleared(15, 3));
-
-              const latestSub = getLatestAvailableSubInWorld(world);
-              const isWorldUnlocked = isStageUnlocked(world, 1);
-              const worldImg = `${STAGE_IMG_BASE}${world}_1.png`;
-              const isWorldFullyCleared = isStageCleared(world, 1) && isStageCleared(world, 2) && isStageCleared(world, 3);
-              const isNewlyAppearing = world > 15 && isUnlockingAnimation;
-              
               return (
                 <div 
                   key={world} 
@@ -828,18 +815,33 @@ useEffect(() => {
           {showThanksMessage && <div className="fixed inset-0 z-[2000] bg-white/90 backdrop-blur-3xl flex items-center justify-center p-8 animate-fade-in overflow-hidden"><div className="relative max-w-2xl w-full bg-stone-900 rounded-[3rem] p-12 text-center shadow-[0_50px_100px_rgba(0,0,0,0.3)] border border-white/10 flex flex-col items-center gap-8 animate-pop-up"><div className="flex gap-4"><Heart className="w-12 h-12 text-rose-500 animate-pulse" /><Sparkles className="w-12 h-12 text-amber-400 animate-bounce" /><Heart className="w-12 h-12 text-rose-500 animate-pulse delay-150" /></div><div><h2 className="text-5xl font-black text-white italic tracking-tighter mb-4">CONGRATULATIONS!</h2><p className="text-stone-300 text-xl font-bold leading-relaxed mb-6">プレイしていただき、本当にありがとうございました。<br />全60ステージの完成を心よりお祝い申し上げます。<br />皆様のご多幸をお祈りいたします。</p><div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div></div><button onClick={() => setShowThanksMessage(false)} className="px-12 py-4 bg-white text-stone-900 rounded-full font-black text-lg hover:bg-stone-200 active:scale-95 shadow-xl">閉じる</button></div></div>}
         </div>
       );
-    }
+     })}
 
     const currentGrid = getGridSize(selectedStage?.world || 1), gx = currentGrid.x, gy = currentGrid.y;
     const cellW = TARGET_WIDTH / gx, cellH = TARGET_HEIGHT / gy, pieceDivW = cellW * PIECE_BUFFER_RATIO, pieceDivH = cellH * PIECE_BUFFER_RATIO;
     const bgSizeX = (gx / PIECE_BUFFER_RATIO) * 100, bgSizeY = (gy / PIECE_BUFFER_RATIO) * 100;
 
+              const world = i + 1;
+              const isWorldVisible = world <= 15 || hasRevealedExtraStages;
+              if (!isWorldVisible) return null;
+
+              const isChainLocked = (world > 5 && world <= 10 && !isStageCleared(5, 3)) ||
+                                    (world > 10 && world <= 15 && !isStageCleared(10, 3)) ||
+                                    (world > 15 && !isStageCleared(15, 3));
+
+              const latestSub = getLatestAvailableSubInWorld(world);
+              const isWorldUnlocked = isStageUnlocked(world, 1);
+              const worldImg = `${STAGE_IMG_BASE}${world}_1.png`;
+              const isWorldFullyCleared = isStageCleared(world, 1) && isStageCleared(world, 2) && isStageCleared(world, 3);
+              const isNewlyAppearing = world > 15 && isUnlockingAnimation;
+              
+
+
 return (
   <div className="min-h-screen bg-[#FAF9F6] flex justify-center items-start overflow-hidden">
     <div className="game-root">
 
-      <div className={`min-h-screen ${isFlashing ? 'bg-white' : 'bg-[#FAF9F6]'} ${isExploding ? 'animate-shake' : ''} text-stone-800 font-sans flex flex-col overflow-hidden select-none transition-colors duration-100`}>
-        <header className={`px-6 py-6 bg-white/70 backdrop-blur-xl border-b border-stone-200 flex justify-between items-center z-50 transition-all duration-700 ${showSettings || showGiveUpModal || showItemConfirm || showGhostConfirm || showGuideConfirm ? 'opacity-0 -translate-y-full pointer-events-none' : 'opacity-100 translate-y-0'}`}>
+         <header className={`px-6 py-6 bg-white/70 backdrop-blur-xl border-b border-stone-200 flex justify-between items-center z-50 transition-all duration-700 ${showSettings || showGiveUpModal || showItemConfirm || showGhostConfirm || showGuideConfirm ? 'opacity-0 -translate-y-full pointer-events-none' : 'opacity-100 translate-y-0'}`}>
           <div className="flex items-center gap-3">
             <button onClick={() => setGameState('STAGES')} className="p-2 hover:bg-stone-100 rounded-xl transition-colors"><ChevronLeft /></button>
             <div className="flex flex-col">
@@ -1006,37 +1008,12 @@ return (
       </div>
     </div>
   </div>
-)}      </div>
-    );
-  };
+)}
 
-  return (
-    <>
-      {renderContent()}
-      {showDebug && <div className="fixed bottom-4 left-4 z-[1000] flex flex-col gap-2 animate-fade-in"><div className="flex gap-2"><button onClick={() => setItemStock(3)} className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-stone-900 text-[10px] font-black rounded-2xl border border-amber-600/30 shadow-lg">REFILL TIME</button><button onClick={() => setGhostStock(3)} className="flex items-center gap-2 px-4 py-2 bg-sky-500 text-white text-[10px] font-black rounded-2xl border border-sky-600/30 shadow-lg">REFILL GHOST</button><button onClick={() => setGuideStock(3)} className="flex items-center gap-2 px-4 py-2 bg-rose-500 text-white text-[10px] font-black rounded-2xl border border-rose-600/30 shadow-lg">REFILL GUIDE</button></div><div className="flex items-center gap-2"><div className={`flex items-center gap-2 p-2 bg-stone-900/60 rounded-2xl border ${debugError ? 'border-red-500' : 'border-white/10'}`}><Terminal className="w-4 h-4 text-white/50 ml-1" /><input type="text" placeholder="e.g. 1-1" value={debugInput} onChange={(e) => setDebugInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleDebugJump()} className="bg-transparent text-white text-[10px] font-black w-14 outline-none placeholder:text-white/20 uppercase" /><button onClick={handleDebugJump} className="px-3 py-1 bg-white/20 text-white text-[8px] font-black rounded-lg">JUMP</button><button onClick={handleDebugAllClear} className="px-3 py-1 bg-amber-500/80 text-stone-900 text-[8px] font-black rounded-lg">ALL CLEAR</button></div></div></div>}
-      {gameState !== 'SPLASH' && !showFullRes && <button onClick={() => setShowSettings(true)} className={`fixed bottom-8 right-8 p-4 bg-white/80 backdrop-blur-md rounded-full border border-stone-200 shadow-xl text-stone-600 z-[300] transition-all hover:scale-110 ${showSettings || showGiveUpModal || showItemConfirm || showGhostConfirm || showGuideConfirm || isPaused ? 'opacity-0 scale-50 pointer-events-none' : 'opacity-100 scale-100'}`}><Settings className="w-6 h-6" /></button>}
-      {showSettings && <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-2xl flex items-center justify-center animate-fade-in"><div className="bg-white/10 border border-white/20 backdrop-blur-xl p-10 rounded-[3rem] w-full max-w-sm flex flex-col gap-8 animate-pop-up"><div className="flex justify-between items-center mb-2"><h3 className="text-2xl font-black text-white italic">SETTINGS</h3><button onClick={() => setShowSettings(false)} className="p-2 bg-white/10 rounded-full text-white hover:bg-white/20"><X className="w-5 h-5" /></button></div><div className="flex flex-col gap-4"><div className="flex justify-between items-center text-white/60 font-black tracking-widest text-[10px]">{bgmVolume === 0 ? <VolumeX /> : <Volume2 />} BGM<span className="text-white font-mono text-xs">{Math.round(bgmVolume * 100)}%</span></div><input type="range" min="0" max="1" step="0.01" value={bgmVolume} onChange={(e) => setBgmVolume(parseFloat(e.target.value))} className="w-full h-2 bg-white/20 rounded-full appearance-none accent-white"/></div><div className="flex flex-col gap-4"><div className="flex justify-between items-center text-white/60 font-black tracking-widest text-[10px]">{seVolume === 0 ? <VolumeX /> : <Volume1 />} SE<span className="text-white font-mono text-xs">{Math.round(seVolume * 100)}%</span></div><input type="range" min="0" max="1" step="0.01" value={seVolume} onChange={(e) => setSeVolume(parseFloat(e.target.value))} className="w-full h-2 bg-white/20 rounded-full appearance-none accent-white"/></div><button onClick={() => setShowSettings(false)} className="mt-4 px-8 py-4 bg-white text-stone-900 rounded-full font-black text-sm shadow-xl">閉じて再開</button></div></div>}
-      {showGiveUpModal && <div className="fixed inset-0 z-[400] bg-black/90 backdrop-blur-3xl flex items-center justify-center animate-fade-in"><div className="bg-stone-900/80 border border-white/10 p-12 rounded-[4rem] w-full max-w-md flex flex-col gap-8 animate-pop-up"><div className="flex flex-col items-center gap-4 text-center"><div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center"><AlertTriangle className="text-red-500 w-10 h-10" /></div><h3 className="text-3xl font-black text-white italic">GIVE UP?</h3></div><div className="flex flex-col gap-4"><button onClick={() => { setShowGiveUpModal(false); if (selectedStage) selectStage(selectedStage.world, selectedStage.sub, true); }} className="w-full py-5 bg-white text-stone-900 rounded-3xl font-black flex items-center justify-center gap-3"><RefreshCcw className="w-5 h-5" /> 最初からやり直す</button><button onClick={() => { setGameState('STAGES'); setShowGiveUpModal(false); }} className="w-full py-4 bg-stone-800 text-white rounded-3xl font-bold flex items-center justify-center gap-3 border border-white/5">ステージ選択に戻る</button></div><button onClick={() => setShowGiveUpModal(false)} className="mt-2 text-stone-600 font-black text-[10px] uppercase hover:text-stone-400">Cancel</button></div></div>}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes pop-up { 0% { transform: scale(0.9) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
-        @keyframes float-in { 0% { transform: translateY(80px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        .animate-fade-in { animation: fade-in 0.8s ease-out forwards; }
-        .animate-pop-up { animation: pop-up 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .animate-float-in { animation: float-in 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-image-reveal { animation: image-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-red-warning { animation: red-warning 0.5s infinite; }
-        .animate-spin-slow { animation: spin-slow 4s linear infinite; }
-        .animate-pulse-glow { animation: pulse-glow 2s infinite ease-in-out; }
-        .animate-shake { animation: shake 0.2s infinite; }
-        .animate-aurora-pulse { animation: aurora-pulse 2s infinite ease-in-out; }
-        body { overscroll-behavior: none; background-color: #FAF9F6; margin: 0; padding: 0; overflow: hidden; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: white; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
-      `}} />
-    </>
-  );
-};
+    </div>   {/* ← game-root */}
+  </div>     {/* ← min-h-screen */}
+);
+}
 
 const root = createRoot(document.getElementById('root')!);
 root.render(<JigsawApp />);
