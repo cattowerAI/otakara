@@ -947,9 +947,6 @@ if (gameState === 'STAGES' || gameState === 'ALBUM') {
             </div>
           );
         })}
-      </div>
-    </div>
-  );
 
 
     const currentGrid = getGridSize(selectedStage?.world || 1), gx = currentGrid.x, gy = currentGrid.y;
@@ -1148,7 +1145,7 @@ return (
     </div>   {/* ← game-root */}
   </div>     {/* ← min-h-screen */}
 );
-}
+
 
 const root = createRoot(document.getElementById('root')!);
 root.render(<JigsawApp />);
