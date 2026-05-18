@@ -766,56 +766,191 @@ useEffect(() => {
     if (gameState === 'SPLASH') return <div className="fixed inset-0 bg-white flex flex-col items-center justify-center cursor-pointer animate-fade-in" onClick={() => { handleStartMusic(); setGameState('TITLE'); }}><h1 className="text-black text-5xl sm:text-7xl font-['Great_Vibes'] text-center px-4 animate-fade-in">Welcome to the world of puzzles</h1></div>;
     if (gameState === 'TITLE') return <div className="fixed inset-0 bg-cover bg-center flex flex-col items-center justify-center cursor-pointer" style={{ backgroundImage: `url(${TITLE_BG_URL})` }} onClick={() => { handleStartMusic(); setGameState('STAGES'); }}><button onClick={(e) => { e.stopPropagation(); toggleFullScreen(); }} className="absolute top-8 right-8 p-3 bg-white/20 hover:bg-white/40 text-white rounded-full border border-white/40 shadow-xl z-20">{isFullScreen ? <Minimize2 /> : <Maximize2 />}</button><div className="relative z-10 text-center flex flex-col items-center animate-fade-in"><div className="group flex flex-col items-center gap-6"><div className="w-24 h-24 bg-white/90 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.3)] animate-bounce group-hover:scale-110 transition-transform"><Play className="text-stone-900 w-12 h-12 ml-1" /></div><span className="text-white font-black text-2xl tracking-[0.4em] drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] animate-pulse">TAP TO START</span></div></div></div>;
 
-   if (gameState === 'STAGES' || gameState === 'ALBUM') {
+if (gameState === 'STAGES' || gameState === 'ALBUM') {
   const isAlbum = gameState === 'ALBUM';
+
   return (
     <div className={`${isAlbum ? 'bg-[#E0F2FE]' : 'bg-[#FAF9F6]'} h-full flex flex-col p-4 sm:p-8 animate-fade-in relative`}>
+
       <header className="mb-8 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button onClick={() => setGameState('TITLE')} className="group flex items-center gap-2 p-3 bg-stone-900 shadow-xl border border-stone-800 rounded-2xl hover:bg-stone-800 transition-all active:scale-95"><ChevronLeft className="w-6 h-6 text-white" /><span className="hidden sm:inline text-white font-black text-[10px] uppercase tracking-widest mr-1">Title</span></button>
-              <h2 className="text-3xl sm:text-4xl font-black italic tracking-tighter text-stone-900 uppercase">{isAlbum ? 'Album' : 'Select Stage'}</h2>
-            </div>
-            <div className="flex items-center gap-4">
-              <button onClick={() => setGameState(isAlbum ? 'STAGES' : 'ALBUM')} className={`p-3 rounded-2xl border transition-all flex items-center gap-2 font-black text-xs uppercase tracking-widest ${isAlbum ? 'bg-amber-400 text-stone-900 border-amber-500 shadow-md' : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'}`}>{isAlbum ? <LayoutGrid className="w-5 h-5" /> : <Library className="w-5 h-5" />}<span className="hidden sm:inline">{isAlbum ? 'Stages' : 'Album'}</span></button>
-              <div className="hidden sm:block px-6 py-2 bg-stone-100 border border-stone-200 text-stone-600 rounded-full font-black text-xs tracking-widest uppercase">Progress: {clearedStages.length}/{TOTAL_WORLDS * SUB_STAGES_PER_WORLD}</div>
-              <button onClick={() => toggleFullScreen()} className="p-3 bg-white hover:bg-stone-50 text-stone-600 rounded-2xl border border-stone-200 shadow-sm transition-all">{isFullScreen ? <Minimize2 className="w-6 h-6" /> : <Maximize2 className="w-6 h-6" />}</button>
-            </div>
-          </header>
-
-            <div className="flex-1 overflow-y-auto max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-20">
-            {Array.from({ length: TOTAL_WORLDS }).map((_, i) => {
-
-              return (
-                <div 
-                  key={world} 
-                  className={`flex flex-col gap-4 bg-white p-5 rounded-[2.5rem] shadow-sm border border-stone-200 transition-all hover:shadow-md ${isChainLocked ? 'opacity-40 grayscale pointer-events-none' : (isWorldUnlocked || isAlbum ? 'opacity-100' : 'opacity-60 grayscale brightness-75')} ${isNewlyAppearing ? 'animate-float-in' : ''}`}
-                >
-                  <div onClick={() => !isAlbum && isWorldUnlocked && !isChainLocked && selectStage(world, latestSub)} className={`relative w-full aspect-[16/10] bg-stone-100 rounded-[1.5rem] overflow-hidden border-2 transition-all ${isWorldUnlocked && !isAlbum && !isChainLocked ? 'cursor-pointer hover:scale-[1.02] border-stone-100' : 'cursor-default border-stone-200'}`}>
-                    <img src={worldImg} className={`w-full h-full object-cover transition-all duration-700 ${isAlbum ? (isWorldFullyCleared ? 'brightness-100' : 'brightness-[0.1] blur-[6px]') : (isStageCleared(world, 3) ? 'brightness-100' : 'brightness-[0.4]')}`} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-5">
-                      <span className="text-white font-black italic tracking-tighter text-3xl uppercase">Stage {world}</span>
-                    </div>
-                    {isChainLocked && <div className="absolute inset-0 flex items-center justify-center bg-black/20"><Lock className="w-12 h-12 text-white drop-shadow-lg" /></div>}
-                  </div>
-                  <div className="flex flex-col gap-3 px-1">
-                    <div className="flex items-center justify-between"><span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Progress</span>{isWorldFullyCleared && <span className="text-[10px] font-black text-green-500 uppercase tracking-widest flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Clear</span>}</div>
-                    <div className="flex items-center gap-3">
-                      {[1, 2, 3].map(sub => {
-                        const cleared = isStageCleared(world, sub), unlocked = isStageUnlocked(world, sub);
-                        return <button key={sub} disabled={isChainLocked || (!isAlbum && !unlocked)} onClick={() => isAlbum ? (cleared && setViewerStage({world, sub})) : selectStage(world, sub)} className={`group relative flex-1 aspect-square rounded-2xl border-4 flex items-center justify-center transition-all overflow-hidden ${isAlbum ? (cleared ? 'cursor-pointer hover:scale-105 border-amber-400' : 'cursor-default opacity-30 grayscale border-stone-100') : (unlocked ? 'cursor-pointer active:scale-90' : 'cursor-not-allowed')} ${!isAlbum && cleared ? 'bg-amber-400 border-amber-500 shadow-amber-200' : !isAlbum && unlocked ? 'bg-white border-stone-200' : 'bg-stone-50 border-stone-100'}`}>{isAlbum ? (cleared ? <img src={`${STAGE_IMG_BASE}${world}_${sub}.png`} className="w-full h-full object-cover" /> : <Lock className="w-4 h-4 text-stone-300" />) : (!unlocked ? <Lock className="w-4 h-4 text-stone-300" /> : (cleared ? <CheckCircle2 className="text-white w-5 h-5" /> : <span className="text-lg font-black text-stone-800 italic">{sub}</span>))}</button>;
-                      })}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          {viewerStage && <div className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-2xl flex items-center justify-center animate-fade-in" onClick={() => setViewerStage(null)}><button className="absolute top-8 right-8 z-[1100] bg-white/10 text-white p-3 rounded-full hover:bg-white/20 transition-all"><X className="w-8 h-8" /></button><div className="relative flex items-center gap-0 w-full h-full justify-center" onClick={e => e.stopPropagation()}><button onClick={() => handleViewerNavigate('prev')} className="absolute left-4 z-[1100] p-4 bg-white/10 text-white rounded-full"><ChevronLeft className="w-8 h-8" /></button><div className="relative h-full aspect-[1024/1536] bg-stone-900 shadow-2xl overflow-hidden flex items-center justify-center cursor-zoom-in" onClick={() => setShowFullRes(true)}><img key={`${viewerStage.world}_${viewerStage.sub}`} src={`${STAGE_IMG_BASE}${viewerStage.world}_${viewerStage.sub}.png`} className="w-full h-full object-contain animate-image-reveal" /><div className="absolute bottom-6 left-6 bg-black/60 backdrop-blur-md px-5 py-2 rounded-full text-white text-xs font-black uppercase tracking-widest border border-white/10">Stage {viewerStage.world}-{viewerStage.sub}</div></div><button onClick={() => handleViewerNavigate('next')} className="absolute right-4 z-[1100] p-4 bg-white/10 text-white rounded-full"><ChevronRight className="w-8 h-8" /></button></div></div>}
-          {isLoading && <div className="fixed inset-0 z-[1000] bg-stone-900/60 backdrop-blur-md flex items-center justify-center"><div className="flex flex-col items-center gap-4"><RefreshCcw className="w-16 h-16 text-white animate-spin" /><span className="text-white font-black italic text-xl tracking-widest animate-pulse">LOADING DATA...</span></div></div>}
-          {showThanksMessage && <div className="fixed inset-0 z-[2000] bg-white/90 backdrop-blur-3xl flex items-center justify-center p-8 animate-fade-in overflow-hidden"><div className="relative max-w-2xl w-full bg-stone-900 rounded-[3rem] p-12 text-center shadow-[0_50px_100px_rgba(0,0,0,0.3)] border border-white/10 flex flex-col items-center gap-8 animate-pop-up"><div className="flex gap-4"><Heart className="w-12 h-12 text-rose-500 animate-pulse" /><Sparkles className="w-12 h-12 text-amber-400 animate-bounce" /><Heart className="w-12 h-12 text-rose-500 animate-pulse delay-150" /></div><div><h2 className="text-5xl font-black text-white italic tracking-tighter mb-4">CONGRATULATIONS!</h2><p className="text-stone-300 text-xl font-bold leading-relaxed mb-6">プレイしていただき、本当にありがとうございました。<br />全60ステージの完成を心よりお祝い申し上げます。<br />皆様のご多幸をお祈りいたします。</p><div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div></div><button onClick={() => setShowThanksMessage(false)} className="px-12 py-4 bg-white text-stone-900 rounded-full font-black text-lg hover:bg-stone-200 active:scale-95 shadow-xl">閉じる</button></div></div>}
+        <div className="flex items-center gap-4">
+          <button onClick={() => setGameState('TITLE')} className="group flex items-center gap-2 p-3 bg-stone-900 shadow-xl border border-stone-800 rounded-2xl hover:bg-stone-800 transition-all active:scale-95">
+            <ChevronLeft className="w-6 h-6 text-white" />
+            <span className="hidden sm:inline text-white font-black text-[10px] uppercase tracking-widest mr-1">Title</span>
+          </button>
+          <h2 className="text-3xl sm:text-4xl font-black italic tracking-tighter text-stone-900 uppercase">
+            {isAlbum ? 'Album' : 'Select Stage'}
+          </h2>
         </div>
-      );
-     })}
+
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setGameState(isAlbum ? 'STAGES' : 'ALBUM')}
+            className={`p-3 rounded-2xl border transition-all flex items-center gap-2 font-black text-xs uppercase tracking-widest ${
+              isAlbum
+                ? 'bg-amber-400 text-stone-900 border-amber-500 shadow-md'
+                : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
+            }`}
+          >
+            {isAlbum ? <LayoutGrid className="w-5 h-5" /> : <Library className="w-5 h-5" />}
+            <span className="hidden sm:inline">{isAlbum ? 'Stages' : 'Album'}</span>
+          </button>
+
+          <div className="hidden sm:block px-6 py-2 bg-stone-100 border border-stone-200 text-stone-600 rounded-full font-black text-xs tracking-widest uppercase">
+            Progress: {clearedStages.length}/{TOTAL_WORLDS * SUB_STAGES_PER_WORLD}
+          </div>
+
+          <button onClick={() => toggleFullScreen()} className="p-3 bg-white hover:bg-stone-50 text-stone-600 rounded-2xl border border-stone-200 shadow-sm transition-all">
+            {isFullScreen ? <Minimize2 className="w-6 h-6" /> : <Maximize2 className="w-6 h-6" />}
+          </button>
+        </div>
+      </header>
+
+      {/* ★ ここがステージ一覧の本体 ★ */}
+      <div className="flex-1 overflow-y-auto max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-20">
+        {Array.from({ length: TOTAL_WORLDS }).map((_, i) => {
+          const world = i + 1;
+          const isWorldVisible = world <= 15 || hasRevealedExtraStages;
+          if (!isWorldVisible) return null;
+
+          const isChainLocked =
+            (world > 5 && world <= 10 && !isStageCleared(5, 3)) ||
+            (world > 10 && world <= 15 && !isStageCleared(10, 3)) ||
+            (world > 15 && !isStageCleared(15, 3));
+
+          const latestSub = getLatestAvailableSubInWorld(world);
+          const isWorldUnlocked = isStageUnlocked(world, 1);
+          const worldImg = `${STAGE_IMG_BASE}${world}_1.png`;
+          const isWorldFullyCleared =
+            isStageCleared(world, 1) &&
+            isStageCleared(world, 2) &&
+            isStageCleared(world, 3);
+
+          const isNewlyAppearing = world > 15 && isUnlockingAnimation;
+
+          return (
+            <div
+              key={world}
+              className={`flex flex-col gap-4 bg-white p-5 rounded-[2.5rem] shadow-sm border border-stone-200 transition-all hover:shadow-md ${
+                isChainLocked
+                  ? 'opacity-40 grayscale pointer-events-none'
+                  : isWorldUnlocked || isAlbum
+                  ? 'opacity-100'
+                  : 'opacity-60 grayscale brightness-75'
+              } ${isNewlyAppearing ? 'animate-float-in' : ''}`}
+            >
+              <div
+                onClick={() =>
+                  !isAlbum &&
+                  isWorldUnlocked &&
+                  !isChainLocked &&
+                  selectStage(world, latestSub)
+                }
+                className={`relative w-full aspect-[16/10] bg-stone-100 rounded-[1.5rem] overflow-hidden border-2 transition-all ${
+                  isWorldUnlocked && !isAlbum && !isChainLocked
+                    ? 'cursor-pointer hover:scale-[1.02] border-stone-100'
+                    : 'cursor-default border-stone-200'
+                }`}
+              >
+                <img
+                  src={worldImg}
+                  className={`w-full h-full object-cover transition-all duration-700 ${
+                    isAlbum
+                      ? isWorldFullyCleared
+                        ? 'brightness-100'
+                        : 'brightness-[0.1] blur-[6px]'
+                      : isStageCleared(world, 3)
+                      ? 'brightness-100'
+                      : 'brightness-[0.4]'
+                  }`}
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-5">
+                  <span className="text-white font-black italic tracking-tighter text-3xl uppercase">
+                    Stage {world}
+                  </span>
+                </div>
+
+                {isChainLocked && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <Lock className="w-12 h-12 text-white drop-shadow-lg" />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-3 px-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">
+                    Progress
+                  </span>
+                  {isWorldFullyCleared && (
+                    <span className="text-[10px] font-black text-green-500 uppercase tracking-widest flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Clear
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {[1, 2, 3].map((sub) => {
+                    const cleared = isStageCleared(world, sub);
+                    const unlocked = isStageUnlocked(world, sub);
+
+                    return (
+                      <button
+                        key={sub}
+                        disabled={isChainLocked || (!isAlbum && !unlocked)}
+                        onClick={() =>
+                          isAlbum
+                            ? cleared &&
+                              setViewerStage({ world, sub })
+                            : selectStage(world, sub)
+                        }
+                        className={`group relative flex-1 aspect-square rounded-2xl border-4 flex items-center justify-center transition-all overflow-hidden ${
+                          isAlbum
+                            ? cleared
+                              ? 'cursor-pointer hover:scale-105 border-amber-400'
+                              : 'cursor-default opacity-30 grayscale border-stone-100'
+                            : unlocked
+                            ? 'cursor-pointer active:scale-90'
+                            : 'cursor-not-allowed'
+                        } ${
+                          !isAlbum && cleared
+                            ? 'bg-amber-400 border-amber-500 shadow-amber-200'
+                            : !isAlbum && unlocked
+                            ? 'bg-white border-stone-200'
+                            : 'bg-stone-50 border-stone-100'
+                        }`}
+                      >
+                        {isAlbum ? (
+                          cleared ? (
+                            <img
+                              src={`${STAGE_IMG_BASE}${world}_${sub}.png`}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Lock className="w-4 h-4 text-stone-300" />
+                          )
+                        ) : !unlocked ? (
+                          <Lock className="w-4 h-4 text-stone-300" />
+                        ) : cleared ? (
+                          <CheckCircle2 className="text-white w-5 h-5" />
+                        ) : (
+                          <span className="text-lg font-black text-stone-800 italic">
+                            {sub}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
 
     const currentGrid = getGridSize(selectedStage?.world || 1), gx = currentGrid.x, gy = currentGrid.y;
     const cellW = TARGET_WIDTH / gx, cellH = TARGET_HEIGHT / gy, pieceDivW = cellW * PIECE_BUFFER_RATIO, pieceDivH = cellH * PIECE_BUFFER_RATIO;
